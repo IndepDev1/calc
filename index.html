@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de términos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><span class="brand-icon">⚖</span> Calculadora de términos <small>v1.0</small></div>
+    <div class="window-controls" aria-hidden="true"><span>_</span><span>□</span><span>×</span></div>
+  </header>
+
+  <main class="desktop">
+    <section class="window" aria-labelledby="titulo">
+      <div class="title-bar">
+        <h1 id="titulo">Cálculo de vencimientos</h1><span>?</span>
+      </div>
+      <div class="window-body">
+        <p class="intro">Ingrese las tres fechas del expediente. Los días hábiles excluyen sábados, domingos, festivos colombianos y suspensiones registradas.</p>
+
+        <form id="calculator-form" novalidate>
+          <fieldset>
+            <legend>Datos del expediente</legend>
+            <div class="form-grid">
+              <label for="presentacion">Fecha de presentación</label>
+              <input type="date" id="presentacion" required>
+              <label for="auto">Fecha de estado de auto admisorio</label>
+              <input type="date" id="auto" required>
+              <label for="notificacion">Fecha de notificación</label>
+              <input type="date" id="notificacion" required>
+            </div>
+          </fieldset>
+          <div id="message" class="message" role="alert" hidden></div>
+          <div class="buttons">
+            <button type="submit" class="primary">Calcular</button>
+            <button type="reset">Reset</button>
+            <button type="button" id="detail-button" disabled>Detalle del cálculo</button>
+          </div>
+        </form>
+
+        <section id="results" class="results" hidden aria-live="polite">
+          <h2>Resumen de fechas</h2>
+          <div class="result-grid">
+            <article><span>Fecha límite de calificación</span><strong id="r-calificacion">—</strong><small>Presentación + 30 días hábiles</small></article>
+            <article><span>Vencimiento</span><strong id="r-vencimiento">—</strong><small id="r-vencimiento-rule">Fecha base + 1 año + días calendario de suspensión</small></article>
+            <article class="featured"><span>Vencimiento prorrogado</span><strong id="r-seis-meses">—</strong><small>Vencimiento + 6 meses + días calendario de suspensión</small></article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="details" class="window details" hidden>
+      <div class="title-bar"><h2>Detalle del cálculo</h2><button id="close-detail" aria-label="Cerrar detalle">×</button></div>
+      <div class="window-body">
+        <section id="suspension-detail"></section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>La información se ha obtenido de la consulta pública de la SIC en:</span>
+    <a href="https://sedeelectronica.sic.gov.co/transparencia/normativa/busqueda-de-normas/entidad?combine=Suspensi%C3%B3n&amp;field_clasificacion2_target_id=177&amp;field_clasificacion5_target_id=All&amp;field_tipo_acto_target_id=All&amp;field_fecha_publicacion_value=" target="_blank" rel="noopener noreferrer">Consulta pública de normas de la SIC</a>
+  </footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
