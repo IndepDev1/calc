@@ -18,7 +18,7 @@
         <h1 id="titulo">Cálculo de vencimientos</h1><span>?</span>
       </div>
       <div class="window-body">
-        <p class="intro">Ingrese las tres fechas del expediente para el cálculo completo, o solo la fecha de presentación para calcular el límite de calificación. Los días hábiles excluyen sábados, domingos, festivos colombianos y suspensiones registradas.</p>
+        <p class="intro">Ingrese las tres fechas del expediente para el cálculo completo, solo la fecha de presentación para calcular el límite de calificación, o la fecha del estado del auto de inadmisión para calcular los cinco días hábiles siguientes. Los días hábiles excluyen sábados, domingos, festivos colombianos y suspensiones registradas.</p>
 
         <form id="calculator-form" novalidate>
           <fieldset>
@@ -30,12 +30,15 @@
               <input type="date" id="auto" required>
               <label for="notificacion">Fecha de notificación</label>
               <input type="date" id="notificacion" required>
+              <label for="auto-inadmision">Fecha Estado Auto Inadmisión</label>
+              <input type="date" id="auto-inadmision">
             </div>
           </fieldset>
           <div id="message" class="message" role="alert" hidden></div>
           <div class="buttons">
             <button type="submit" class="primary">Calcular</button>
             <button type="button" id="qualification-button">Solo fecha límite de calificación</button>
+            <button type="button" id="inadmission-button">Calcular 5 días hábiles</button>
             <button type="reset">Reset</button>
             <button type="button" id="detail-button" disabled>Detalle del cálculo</button>
           </div>
@@ -45,6 +48,7 @@
           <h2>Resumen de fechas</h2>
           <div class="result-grid">
             <article id="result-calificacion"><span>Fecha límite de calificación</span><strong id="r-calificacion">—</strong><small>Presentación + 30 días hábiles</small></article>
+            <article id="result-inadmision"><span>Plazo después del auto de inadmisión</span><strong id="r-inadmision">—</strong><small>Fecha Estado Auto Inadmisión + 5 días hábiles</small></article>
             <article id="result-vencimiento"><span>Vencimiento</span><strong id="r-vencimiento">—</strong><small id="r-vencimiento-rule">Fecha base + 1 año + días calendario de suspensión</small></article>
             <article id="result-prorrogado" class="featured"><span>Vencimiento prorrogado</span><strong id="r-seis-meses">—</strong><small>Vencimiento + 6 meses + días calendario de suspensión</small></article>
           </div>

@@ -7,7 +7,9 @@ const details = document.querySelector('#details');
 const message = document.querySelector('#message');
 const detailButton = document.querySelector('#detail-button');
 const qualificationButton = document.querySelector('#qualification-button');
+const inadmissionButton = document.querySelector('#inadmission-button');
 const resultQualification = document.querySelector('#result-calificacion');
+const resultInadmission = document.querySelector('#result-inadmision');
 const resultDue = document.querySelector('#result-vencimiento');
 const resultExtended = document.querySelector('#result-prorrogado');
 let lastCalculation = null;
@@ -52,6 +54,35 @@ function suspensionExtension(start, anniversary) {
   }
   return dates;
 }
+function recursiveSuspensionExtension(start, initialEnd) {
+  const dates=[];
+  const countedDates=new Set();
+  let segmentStart=clone(start);
+  let adjustedEnd=clone(initialEnd);
+
+  while (segmentStart<=adjustedEnd) {
+    const newDates=[];
+    let cursor=clone(segmentStart);
+    while (cursor<=adjustedEnd) {
+      const key=iso(cursor);
+      const suspension=suspensionFor(cursor);
+      if (suspension && !countedDates.has(key)) {
+        countedDates.add(key);
+        const item={date:clone(cursor),resolution:suspension.resolucion};
+        dates.push(item);
+        newDates.push(item);
+      }
+      cursor=nextDay(cursor);
+    }
+    if (!newDates.length) break;
+
+    const previousEnd=clone(adjustedEnd);
+    adjustedEnd=addCalendarDays(adjustedEnd,newDates.length);
+    segmentStart=previousEnd;
+  }
+
+  return {dates,date:adjustedEnd};
+}
 function setText(id,date){ document.querySelector(id).textContent=format(date); }
 function showMessage(text,error=false){message.textContent=text;message.className=`message${error?' error':''}`;message.hidden=false;}
 function qualificationDate(presentation) {
@@ -70,9 +101,27 @@ qualificationButton.addEventListener('click',()=>{
   }
   const qualification=qualificationDate(parseDate(value));
   setText('#r-calificacion',qualification);
-  resultQualification.hidden=false; resultDue.hidden=true; resultExtended.hidden=true;
+  resultQualification.hidden=false; resultInadmission.hidden=true; resultDue.hidden=true; resultExtended.hidden=true;
   results.hidden=false;
   showMessage('Fecha límite de calificación calculada.');
+});
+
+inadmissionButton.addEventListener('click',()=>{
+  message.hidden=true; details.hidden=true; lastCalculation=null; detailButton.disabled=true;
+  const input=document.querySelector('#auto-inadmision');
+  if(!input.value){
+    results.hidden=true;
+    showMessage('Ingrese la Fecha Estado Auto Inadmisión para calcular los cinco días hábiles.',true);
+    input.focus();
+    return;
+  }
+  const start=parseDate(input.value);
+  const holidays=generarFestivosCO(start.getFullYear()-1,start.getFullYear()+2);
+  const deadline=addBusinessDays(start,5,holidays).date;
+  setText('#r-inadmision',deadline);
+  resultQualification.hidden=true; resultInadmission.hidden=false; resultDue.hidden=true; resultExtended.hidden=true;
+  results.hidden=false;
+  showMessage('Fecha límite de cinco días hábiles calculada.');
 });
 
 form.addEventListener('submit', event => {
@@ -85,14 +134,15 @@ form.addEventListener('submit', event => {
   const holidays=generarFestivosCO(minYear,maxYear);
   const qualification=addBusinessDays(presentation,30,holidays).date;
   setText('#r-calificacion',qualification);
-  resultQualification.hidden=false; resultDue.hidden=false; resultExtended.hidden=false;
+  resultQualification.hidden=false; resultInadmission.hidden=true; resultDue.hidden=false; resultExtended.hidden=false;
   results.hidden=false;
   const usesNotification=auto<=qualification;
   const baseDate=usesNotification?notification:presentation;
   const baseLabel=usesNotification?'fecha de notificación':'fecha de presentación';
   const anniversary=addYears(baseDate,1);
-  const suspended=suspensionExtension(baseDate,anniversary);
-  const due=addCalendarDays(anniversary,suspended.length);
+  const annualAdjustment=recursiveSuspensionExtension(baseDate,anniversary);
+  const suspended=annualAdjustment.dates;
+  const due=annualAdjustment.date;
   const sixMonthAnniversary=addMonths(due,6);
   const suspendedSixMonths=suspensionExtension(due,sixMonthAnniversary);
   const extendedDue=addCalendarDays(sixMonthAnniversary,suspendedSixMonths.length);
