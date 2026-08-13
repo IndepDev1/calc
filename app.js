@@ -6,6 +6,10 @@ const results = document.querySelector('#results');
 const details = document.querySelector('#details');
 const message = document.querySelector('#message');
 const detailButton = document.querySelector('#detail-button');
+const qualificationButton = document.querySelector('#qualification-button');
+const resultQualification = document.querySelector('#result-calificacion');
+const resultDue = document.querySelector('#result-vencimiento');
+const resultExtended = document.querySelector('#result-prorrogado');
 let lastCalculation = null;
 
 function parseDate(value) { const [y,m,d] = value.split('-').map(Number); return new Date(y,m-1,d,12); }
@@ -50,6 +54,26 @@ function suspensionExtension(start, anniversary) {
 }
 function setText(id,date){ document.querySelector(id).textContent=format(date); }
 function showMessage(text,error=false){message.textContent=text;message.className=`message${error?' error':''}`;message.hidden=false;}
+function qualificationDate(presentation) {
+  const holidays=generarFestivosCO(presentation.getFullYear()-1,presentation.getFullYear()+2);
+  return addBusinessDays(presentation,30,holidays).date;
+}
+
+qualificationButton.addEventListener('click',()=>{
+  message.hidden=true; details.hidden=true; lastCalculation=null; detailButton.disabled=true;
+  const value=document.querySelector('#presentacion').value;
+  if(!value){
+    results.hidden=true;
+    showMessage('Ingrese la fecha de presentación para calcular la fecha límite de calificación.',true);
+    document.querySelector('#presentacion').focus();
+    return;
+  }
+  const qualification=qualificationDate(parseDate(value));
+  setText('#r-calificacion',qualification);
+  resultQualification.hidden=false; resultDue.hidden=true; resultExtended.hidden=true;
+  results.hidden=false;
+  showMessage('Fecha límite de calificación calculada.');
+});
 
 form.addEventListener('submit', event => {
   event.preventDefault(); message.hidden=true; details.hidden=true; lastCalculation=null;
@@ -61,6 +85,7 @@ form.addEventListener('submit', event => {
   const holidays=generarFestivosCO(minYear,maxYear);
   const qualification=addBusinessDays(presentation,30,holidays).date;
   setText('#r-calificacion',qualification);
+  resultQualification.hidden=false; resultDue.hidden=false; resultExtended.hidden=false;
   results.hidden=false;
   const usesNotification=auto<=qualification;
   const baseDate=usesNotification?notification:presentation;
